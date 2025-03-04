@@ -1,0 +1,9 @@
+# Folders
+.idea/
+Pipsi Installations/
+workspace/
+dist/
+
+# Files
+cheat_catalog.yaml
+installation_data.yaml
