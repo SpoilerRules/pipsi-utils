@@ -44,7 +44,7 @@
 ## Getting Started
 
 1. **Download the Latest Binary**  
-   Visit the [releases page](https://github.com/SpoilerRules/pipsi-utils/releases/latest) and download the latest binary for your system.
+   Visit the [releases page](https://github.com/SpoilerRules/pipsi-utils/releases/latest) and download the latest binary.
 
 2. **Install the Binary**  
    Move the executable to your desired installation directory (e.g., `C:\Desktop\Favorite Apps\pipsi-utils`).  
