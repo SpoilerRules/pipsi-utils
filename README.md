@@ -43,27 +43,29 @@
 
 ## Getting Started
 
-1. **Download the Latest Binary**  
-   Visit the [releases page](https://github.com/SpoilerRules/pipsi-utils/releases/latest) and download the latest binary.
+1. **Download the Latest Release**  
+   Visit the [releases page](https://github.com/SpoilerRules/pipsi-utils/releases/latest) and download `pipsi-utils_Windows_x86_64.zip`.
 
-2. **Install the Binary**  
-   Move the executable to your desired installation directory (e.g., `C:\Desktop\Favorite Apps\pipsi-utils`).  
-   **Note**: The tool will create supporting files/folders (e.g., Pipsi installations) in this directory. Ensure it has write permissions.
+2. **Extract the Files**  
+   After downloading, extract the zip file. Inside, you'll find `pipsi-utils.exe`.
 
-3. **Run the Tool**  
-   You can run the tool in one of the following ways:
-    - **Via Terminal/Powershell**:  
-      Open a terminal or PowerShell window and execute:
-      ```powershell
-      .\pipsi-utils.exe
-      ```  
-    - **Via Right-Click**:  
-      Right-click on the executable and select **Open** from the context menu.
-    - **Via Double-Click**:  
-      Double-click the executable file to run it directly.
+3. **Move the Executable (Optional)**  
+   For easier access and consistent application data, move `pipsi-utils.exe` to a preferred location (e.g., `C:\Desktop\Favorite Apps\pipsi-utils`).  
+   **Note:** The tool stores data such as available Pipsi installations in its directory. Running the executable from different locations may result in missing data or duplicated configurations.
+
+4. **Run the Tool**  
+   You can launch `pipsi-utils.exe` using one of these methods:
+   - **Via Terminal/Powershell:**  
+     Open a terminal or PowerShell window, navigate to the directory, and run:
+     ```powershell
+     .\pipsi-utils.exe
+     ```  
+   - **Via Right-Click:**  
+     Right-click `pipsi-utils.exe` and select **Open**.
+   - **Via Double-Click:**  
+     Simply double-click `pipsi-utils.exe` to run it.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 ## Building from Source
 
