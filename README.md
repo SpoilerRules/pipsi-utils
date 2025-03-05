@@ -78,7 +78,6 @@
 1. **Clone the Repository**
    ```powershell
    git clone https://github.com/SpoilerRules/pipsi-utils.git
-   cd pipsi-utils
    ```
 2. **Build the Binary**
 
