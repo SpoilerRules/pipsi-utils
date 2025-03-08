@@ -36,7 +36,7 @@ func newInstallationProcess() *installationProcess {
 	}
 }
 
-func (ip *installationProcess) AddGame(title string) {
+func (ip *installationProcess) addGame(title string) {
 	ip.games[title] = installationInfo{}
 }
 
@@ -94,7 +94,7 @@ func startCheatInstallation() {
 	}
 
 	for _, game := range ip.selectedGames {
-		ip.AddGame(game)
+		ip.addGame(game)
 		link := config.getInstallationLink(game)
 		if link == "" {
 			log.Errorf("No installation link found for game: %s", game)
@@ -153,7 +153,7 @@ func startCheatUpdate(updateMap map[string]map[string]string) {
 		downloadURL, latestRelease := details["downloadURL"], details["latestVersion"]
 
 		ip.selectedGames = append(ip.selectedGames, title)
-		ip.AddGame(title)
+		ip.addGame(title)
 		ip.installationLinks = append(ip.installationLinks, downloadURL)
 
 		ip.updateGameLatestRelease(title, latestRelease)
