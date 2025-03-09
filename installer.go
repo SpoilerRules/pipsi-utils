@@ -182,7 +182,13 @@ func startCheatUpdate(updateMap map[string]map[string]string) {
 }
 
 func (ip *installationProcess) startDownload() {
-	manageDefenderExclusion()
+	action := func() {
+		manageDefenderExclusion()
+	}
+	if err := spinner.New().Title("Configuring Microsoft Defender Antivirus...").Action(action).Run(); err != nil {
+		log.Errorf("Spinner widget error: %v", err)
+		pauseAndReturnToMainMenu()
+	}
 	var wg sync.WaitGroup
 
 	joinedTitles := formatGameList(ip.selectedGames)
