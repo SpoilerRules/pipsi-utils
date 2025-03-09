@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/huh/spinner"
@@ -8,9 +9,16 @@ import (
 	"golang.org/x/sys/windows"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"slices"
 	"strings"
 	"syscall"
+	"unsafe"
+)
+
+var (
+	shell32      = syscall.NewLazyDLL("shell32.dll")
+	shellExecute = shell32.NewProc("ShellExecuteW")
 )
 
 var localMode bool
@@ -72,13 +80,24 @@ func showMainMenu() {
 		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Select an action from the options below").
-				Options(
-					huh.NewOptions(
-						"Install Pipsi", "Check for updates", "Manage Pipsi shortcuts", "Doesn't have 'Insert' key?",
-					)...,
+				OptionsFunc(
+					func() []huh.Option[string] {
+						options := []string{
+							"Install Pipsi",
+							"Check for updates",
+							"Manage Pipsi shortcuts",
+							"Doesn't have 'Insert' key?",
+						}
+
+						if titles := cheatInstallationData.getInstalledTitles(); len(titles) > 0 {
+							options = append(options, "Open Installation Folder")
+						}
+
+						return huh.NewOptions(options...)
+					}, &cheatInstallationData,
 				).
 				Value(&action).
-				Height(6),
+				Height(7),
 		),
 	).WithAccessible(IsAccessible())
 
@@ -103,7 +122,63 @@ func showMainMenu() {
 		}
 		log.Infof("On-screen keyboard launched. Use it to access the Insert key.")
 		pauseAndReturnToMainMenu()
-		// case: "Open Installation Folder"
+	case "Open Installation Folder":
+		workingDir, err := os.Getwd()
+		if err != nil {
+			log.Errorf("Failed to get working directory: %v", err)
+			pauseAndReturnToMainMenu()
+		}
+
+		installPath := filepath.Join(workingDir, "Pipsi Installations")
+
+		dirInfo, err := os.Stat(installPath)
+		switch {
+		case os.IsNotExist(err):
+			log.Errorf("Installation directory not found: %s", installPath)
+			pauseAndReturnToMainMenu()
+		case err != nil:
+			log.Errorf("Failed to access installation directory: %v", err)
+			pauseAndReturnToMainMenu()
+		case !dirInfo.IsDir():
+			log.Errorf("Invalid installation path (not a directory): %s", installPath)
+			pauseAndReturnToMainMenu()
+		}
+
+		const (
+			openVerb    = "open"
+			swShow      = 5
+			successCode = 32
+		)
+
+		pathPtr, err := syscall.UTF16PtrFromString(installPath)
+		if err != nil {
+			log.Errorf("Failed to encode path string: %v", err)
+			pauseAndReturnToMainMenu()
+		}
+
+		verbPtr, err := syscall.UTF16PtrFromString(openVerb)
+		if err != nil {
+			log.Errorf("Failed to encode action verb: %v", err)
+			pauseAndReturnToMainMenu()
+		}
+
+		ret, _, err := shellExecute.Call(
+			0,
+			uintptr(unsafe.Pointer(verbPtr)),
+			uintptr(unsafe.Pointer(pathPtr)),
+			0,
+			0,
+			swShow,
+		)
+
+		switch {
+		case !errors.Is(err, syscall.Errno(0)):
+			log.Errorf("Directory open operation failed: %v", err)
+		case ret <= successCode:
+			log.Errorf("Directory open failed with system code %d", ret)
+		default:
+			log.Info("Successfully opened installation directory at %s", installPath)
+		}
 	default:
 		fmt.Println("Unknown action. Exiting.")
 	}
