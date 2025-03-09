@@ -35,10 +35,12 @@ archives:
         formats: [ zip ]
 
 release:
-  disable: true
+  name_template: "v{{ .Version }}"
+  footer: |
+    **Full Changelog**: https://github.com/spoilerrules/pipsi-utils/compare/{{ .PreviousTag }}...{{ if .IsNightly }}nightly{{ else }}{{ .Tag }}{{ end }}
 
 changelog:
   disable: true
 
 checksum:
-  disable: true
+  name_template: "checksums.txt"
