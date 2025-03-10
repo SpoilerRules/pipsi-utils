@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/charmbracelet/log"
 	"github.com/nwaples/rardecode"
 	"io"
 	"os"
@@ -15,7 +16,11 @@ func extractRar(source, destination string) error {
 	}
 	defer func() {
 		if closeErr := rr.Close(); closeErr != nil {
-			fmt.Printf("Error closing RAR reader: %v\n", closeErr)
+			log.Warnf(
+				"Failed to properly close the RAR reader: %v. "+
+					"This may result in resource leaks, such as unclosed file handles or memory not being freed, "+
+					"which could degrade system performance over time.", closeErr,
+			)
 		}
 	}()
 
