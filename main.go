@@ -86,11 +86,16 @@ func showMainMenu() {
 							"Install Pipsi",
 							"Check for updates",
 							"Manage Pipsi shortcuts",
+							"Open Installation Folder",
 							"Doesn't have 'Insert' key?",
 						}
 
-						if titles := cheatInstallationData.getInstalledTitles(); len(titles) > 0 {
-							options = append(options, "Open Installation Folder")
+						if len(cheatInstallationData.getInstalledTitles()) == 0 {
+							options = slices.DeleteFunc(
+								options, func(s string) bool {
+									return s == "Check for updates" || s == "Open Installation Folder"
+								},
+							)
 						}
 
 						return huh.NewOptions(options...)
