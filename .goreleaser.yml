@@ -37,7 +37,7 @@ archives:
 release:
   name_template: "v{{ .Version }}"
   footer: |
-    **Full Changelog**: https://github.com/spoilerrules/pipsi-utils/compare/{{ .PreviousTag }}...{{ if .IsNightly }}nightly{{ else }}{{ .Tag }}{{ end }}
+    **Full Changelog**: https://github.com/SpoilerRules/pipsi-utils/compare/{{ .PreviousTag }}...{{ if .IsNightly }}nightly{{ else }}{{ .Tag }}{{ end }}
 
 changelog:
   disable: true
