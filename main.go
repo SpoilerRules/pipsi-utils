@@ -86,7 +86,7 @@ func showMainMenu() {
 							"Install Pipsi",
 							"Check for updates",
 							"Manage Pipsi shortcuts",
-							"Open Installation Folder",
+							"Open installation folder",
 							"Doesn't have 'Insert' key?",
 						}
 
