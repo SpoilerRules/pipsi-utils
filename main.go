@@ -80,7 +80,7 @@ func showMainMenu() {
 		huh.NewGroup(
 			huh.NewSelect[string]().
 				Title("Select an action from the options below").
-				OptionsFunc(
+				Options(
 					func() []huh.Option[string] {
 						options := []string{
 							"Install Pipsi",
@@ -88,6 +88,7 @@ func showMainMenu() {
 							"Manage Pipsi shortcuts",
 							"Open Installation Folder",
 							"Doesn't have 'Insert' key?",
+							"Enable Accessibility Mode",
 						}
 
 						if len(cheatInstallationData.getInstalledTitles()) == 0 {
@@ -98,11 +99,17 @@ func showMainMenu() {
 							)
 						}
 
+						for i, opt := range options {
+							if opt == "Enable Accessibility Mode" && IsAccessible() {
+								options[i] = "Disable Accessibility Mode"
+							}
+						}
+						
 						return huh.NewOptions(options...)
-					}, &cheatInstallationData,
+					}()...,
 				).
 				Value(&action).
-				Height(7),
+				Height(8),
 		),
 	).WithAccessible(IsAccessible())
 
@@ -184,6 +191,10 @@ func showMainMenu() {
 		default:
 			log.Info("Successfully opened installation directory at %s", installPath)
 		}
+	case "Enable Accessibility Mode":
+		EnableAccessibleMode()
+	case "Disable Accessibility Mode":
+		DisableAccessibleMode()
 	default:
 		fmt.Println("Unknown action. Exiting.")
 	}
