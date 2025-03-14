@@ -40,5 +40,8 @@ release:
   footer: |
     **Full Changelog**: https://github.com/SpoilerRules/pipsi-utils/compare/{{ .PreviousTag }}...{{ if .IsNightly }}nightly{{ else }}{{ .Tag }}{{ end }}
 
+changelog:
+  disable: false
+
 checksum:
   name_template: "checksums.txt"
