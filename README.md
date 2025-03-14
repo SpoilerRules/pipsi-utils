@@ -36,6 +36,7 @@
         <li><a href="#notes">Notes</a></li>
       </ul>
     </li>
+    <li><a href="#frequently-asked-questions-faq">FAQ</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
   </ul>
@@ -99,6 +100,23 @@
 Ensure your Go environment is properly configured (`GOPATH`, `GOROOT`, etc.).
 
 If you encounter issues, check your Go version (`go version`) and ensure it matches the prerequisite (Go 1.24).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Frequently Asked Questions (FAQ)
+
+### Why am I returned to the main menu after selecting games in the installation menu?
+
+This happens because the **Enter** key is used to confirm your final selection. To select games:
+
+- Use <kbd>↑</kbd>/<kbd>↓</kbd> to navigate the list
+- Press <kbd>X</kbd> to select/deselect games (selected items turn cyan)
+- Press <kbd>Enter</kbd> only when you're done selecting to proceed
+
+### Do I need to reinstall this tool for new Pipsi versions?
+
+**No.** The tool automatically fetches the latest Pipsi versions and updates from
+the [pipsi-utils-cloud repository](https://github.com/SpoilerRules/pipsi-utils-cloud), so no reinstallation is needed.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
