@@ -33,7 +33,6 @@
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#build-instructions">Build Instructions</a></li>
-        <li><a href="#notes">Notes</a></li>
       </ul>
     </li>
     <li><a href="#frequently-asked-questions-faq">FAQ</a></li>
@@ -71,7 +70,8 @@
 ## Building from Source
 
 ### Prerequisites
-- **Go 1.24 (64-bit)** installed on Windows ([download](https://go.dev/dl/))
+
+- **Go 1.24 or newer (64-bit)** installed on Windows ([download](https://go.dev/dl/))
 - **Git** for repository cloning
 
 ### Build Instructions
@@ -93,13 +93,6 @@
    ```powershell
    .\pipsi-utils.exe
    ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Notes
-Ensure your Go environment is properly configured (`GOPATH`, `GOROOT`, etc.).
-
-If you encounter issues, check your Go version (`go version`) and ensure it matches the prerequisite (Go 1.24).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
