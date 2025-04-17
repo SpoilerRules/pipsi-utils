@@ -81,7 +81,7 @@ func startCheatInstallation() {
 				Options(huh.NewOptions(supportedTitles...)...).
 				Value(&ip.selectedGames),
 		),
-	).WithAccessible(IsAccessible())
+	)
 
 	err := form.Run()
 	if err != nil {

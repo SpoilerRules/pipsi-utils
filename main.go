@@ -68,7 +68,6 @@ func main() {
 	}
 
 	showMainMenu()
-	pauseAndExit()
 }
 
 func showMainMenu() {
@@ -104,7 +103,7 @@ func showMainMenu() {
 				Value(&action).
 				Height(7),
 		),
-	).WithAccessible(IsAccessible())
+	)
 
 	if err := form.Run(); err != nil {
 		log.Fatal(err)
@@ -187,6 +186,7 @@ func showMainMenu() {
 	default:
 		fmt.Println("Unknown action. Exiting.")
 	}
+
 }
 
 // https://gist.github.com/jerblack/d0eb182cc5a1c1d92d92a4c4fcc416c6

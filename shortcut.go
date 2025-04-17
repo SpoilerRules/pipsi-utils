@@ -92,7 +92,7 @@ func showShortcutMenu(games []string) {
 				return !createShortcuts
 			},
 		),
-	).WithAccessible(IsAccessible())
+	)
 
 	if err := form.Run(); err != nil {
 		log.Fatal(err)
@@ -192,7 +192,7 @@ func showAdvancedShortcutMenu() {
 				Options(generateOptions(optionsData)...).
 				Value(&menuSelections),
 		),
-	).WithAccessible(IsAccessible())
+	)
 
 	if err := form.Run(); err != nil {
 		log.Fatal(err)

@@ -63,7 +63,7 @@ func showUpdateMenu() {
 				Options(updateOptions...).
 				Value(&selectedInstallations),
 		),
-	).WithAccessible(IsAccessible())
+	)
 
 	if err := form.Run(); err != nil {
 		log.Fatal(err)
