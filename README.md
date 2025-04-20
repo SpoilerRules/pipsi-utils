@@ -111,6 +111,12 @@ This happens because the **Enter** key is used to confirm your final selection. 
 **No.** The tool automatically fetches the latest Pipsi versions and updates from
 the [pipsi-utils-cloud repository](https://github.com/SpoilerRules/pipsi-utils-cloud), so no reinstallation is needed.
 
+### Are Chinese installations of Pipsi supported?
+
+**Chinese clients are not officially supported.** Manual setup is required for Chinese client versions.
+
+*Note: Native installation and update support for Chinese client versions is currently in development.*
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contributing
