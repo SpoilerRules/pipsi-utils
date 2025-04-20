@@ -14,8 +14,11 @@ import (
 	"regexp"
 )
 
-//go:embed "Game Icons/*.ico"
+//go:embed "assets/icons/*.ico"
 var embeddedIcons embed.FS
+
+const embeddedIconsPath = "assets/icons"
+const tempIconsDirName = "Game Icons"
 
 type shortcutLocation int
 
@@ -234,139 +237,136 @@ func showAdvancedShortcutMenu() {
 }
 
 func createPipsiShortcuts(selectedInstallations []string, location shortcutLocation) []string {
-	err := extractGameIcons()
-	if err != nil {
+	if err := extractGameIcons(); err != nil {
 		log.Errorf("Failed to prepare icons for shortcuts: %v", err)
 		return nil
 	}
 
-	var scs []string
+	var createdShortcuts []string
+	exePath, err := os.Executable()
+	if err != nil {
+		log.Fatalf("Error getting executable path: %v", err)
+		return nil
+	}
+	exeDir := filepath.Dir(exePath)
+
 	for _, game := range selectedInstallations {
-		exePath, err := os.Executable()
-		if err != nil {
-			log.Errorf("Failed to get executable path: %v", err)
-			pauseAndReturnToMainMenu()
-			return nil
-		}
+		installationFolder := config.getInstallationFolder(game)
+		pipsiLauncherPath := filepath.Join(exeDir, "Pipsi Installations", installationFolder, "Launcher.exe")
+		iconPath := filepath.Join(os.TempDir(), tempIconsDirName, installationFolder+".ico")
+		workingDir := filepath.Join(exeDir, installationFolder)
 
-		exeDir := filepath.Dir(exePath)
-		cif := config.getInstallationFolder(game)
-		installationFolderPath := filepath.Join(exeDir, cif)
-		appPath := filepath.Join(filepath.Join(exeDir, "Pipsi Installations", cif), "Launcher.exe")
-		iconPath := filepath.Join(os.TempDir(), "Game Icons", fmt.Sprintf("%s.ico", cif))
-
-		if err = createShortcut(cif, appPath, iconPath, installationFolderPath, location); err != nil {
+		if err := createShortcut(installationFolder, pipsiLauncherPath, iconPath, workingDir, location); err != nil {
 			log.Errorf("Failed to create shortcut for %s: %v", game, err)
 		} else {
-			scs = append(scs, game)
+			createdShortcuts = append(createdShortcuts, game)
 		}
 	}
-	return scs
+	return createdShortcuts
 }
 
 func createShortcut(shortcutName, appPath, iconPath, workingDir string, location shortcutLocation) error {
 	shortcutName = regexp.MustCompile(`[<>:"/\\|?*]`).ReplaceAllString(shortcutName, "")
 
-	var shortcutPath string
+	var basePath string
 	switch location {
 	case desktop:
-		shortcutPath = filepath.Join(filepath.Join(os.Getenv("USERPROFILE"), "Desktop"), shortcutName+".lnk")
+		basePath = filepath.Join(os.Getenv("USERPROFILE"), "Desktop")
 	case currentDir:
-		exePath, err := os.Executable()
-		if err != nil {
-			return fmt.Errorf("error getting executable path: %v", err)
+		if exePath, err := os.Executable(); err == nil {
+			basePath = filepath.Dir(exePath)
+		} else {
+			return fmt.Errorf("error getting executable path: %w", err)
 		}
-		shortcutPath = filepath.Join(filepath.Dir(exePath), shortcutName+".lnk")
 	case startMenu:
-		shortcutPath = filepath.Join(
-			filepath.Join(
-				os.Getenv("APPDATA"),
-				"Microsoft", "Windows", "Start Menu", "Programs",
-			), shortcutName+".lnk",
+		basePath = filepath.Join(
+			os.Getenv("APPDATA"),
+			"Microsoft",
+			"Windows",
+			"Start Menu",
+			"Programs",
 		)
 	default:
 		return fmt.Errorf("invalid shortcut location: %v", location)
 	}
 
+	shortcutPath := filepath.Join(basePath, shortcutName+".lnk")
+
 	if err := ole.CoInitializeEx(0, ole.COINIT_APARTMENTTHREADED); err != nil {
-		return fmt.Errorf("error initializing OLE: %v", err)
+		return fmt.Errorf("error initializing OLE: %w", err)
 	}
 	defer ole.CoUninitialize()
 
-	shellLink, err := oleutil.CreateObject("WScript.Shell")
+	shell, err := oleutil.CreateObject("WScript.Shell")
 	if err != nil {
-		return fmt.Errorf("error creating WScript.Shell object: %v", err)
+		return fmt.Errorf("error creating WScript.Shell object: %w", err)
 	}
-	defer shellLink.Release()
+	defer shell.Release()
 
-	wshell, err := shellLink.QueryInterface(ole.IID_IDispatch)
+	wshell, err := shell.QueryInterface(ole.IID_IDispatch)
 	if err != nil {
-		return fmt.Errorf("error querying IDispatch: %v", err)
+		return err
 	}
 	defer wshell.Release()
 
-	cs, err := oleutil.CallMethod(wshell, "CreateShortcut", shortcutPath)
+	sc, err := oleutil.CallMethod(wshell, "CreateShortcut", shortcutPath)
 	if err != nil {
-		return fmt.Errorf("error creating shortcut: %v", err)
+		return fmt.Errorf("error creating shortcut: %w", err)
 	}
-	shortcut := cs.ToIDispatch()
+	shortcut := sc.ToIDispatch()
 	defer shortcut.Release()
 
-	if _, err := oleutil.PutProperty(shortcut, "TargetPath", appPath); err != nil {
-		return fmt.Errorf("error setting TargetPath: %v", err)
+	properties := map[string]any{
+		"TargetPath":       appPath,
+		"IconLocation":     iconPath,
+		"WorkingDirectory": workingDir,
 	}
-	if _, err := oleutil.PutProperty(shortcut, "IconLocation", iconPath); err != nil {
-		return fmt.Errorf("error setting IconLocation: %v", err)
+
+	for prop, value := range properties {
+		if _, err := oleutil.PutProperty(shortcut, prop, value); err != nil {
+			return fmt.Errorf("failed to set %s: %w", prop, err)
+		}
 	}
-	if _, err := oleutil.PutProperty(shortcut, "WorkingDirectory", workingDir); err != nil {
-		return fmt.Errorf("error setting WorkingDirectory: %v", err)
-	}
+
 	if _, err := oleutil.CallMethod(shortcut, "Save"); err != nil {
-		return fmt.Errorf("error saving shortcut: %v", err)
+		return fmt.Errorf("error saving shortcut: %w", err)
 	}
 
 	return nil
 }
 
 func extractGameIcons() error {
-	targetDir := filepath.Join(os.TempDir(), "Game Icons")
-	extractionNeeded := false
+	targetDir := filepath.Join(os.TempDir(), tempIconsDirName)
+	entries, err := embeddedIcons.ReadDir(embeddedIconsPath)
+	if err != nil {
+		return fmt.Errorf("failed to read embedded icons: %w", err)
+	}
 
+	extractionNeeded := false
 	if _, err := os.Stat(targetDir); os.IsNotExist(err) {
 		extractionNeeded = true
 	} else {
-		entries, err := embeddedIcons.ReadDir("Game Icons")
-		if err != nil {
-			log.Warn("Corrupted icon manifest, regenerating icons")
-			extractionNeeded = true
-		} else {
-			for _, entry := range entries {
-				if entry.IsDir() {
-					continue
-				}
-				targetPath := filepath.Join(targetDir, entry.Name())
-				if _, err := os.Stat(targetPath); os.IsNotExist(err) {
-					extractionNeeded = true
-					break
-				}
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+			if _, err := os.Stat(filepath.Join(targetDir, entry.Name())); err != nil {
+				extractionNeeded = true
+				break
 			}
 		}
 	}
 
 	if !extractionNeeded {
-		log.Debug("Icons already cached")
+		log.Debug("Icons already up-to-date")
 		return nil
 	}
 
-	if err := os.MkdirAll(targetDir, 0755); err != nil {
-		log.Error("Failed to create icon cache directory", "path", targetDir, "error", err)
-		return err
+	if err := os.RemoveAll(targetDir); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("failed to clean target directory: %w", err)
 	}
-
-	entries, err := embeddedIcons.ReadDir("Game Icons")
-	if err != nil {
-		log.Error("Failed to read embedded icons", "error", err)
-		return err
+	if err := os.MkdirAll(targetDir, 0755); err != nil {
+		return fmt.Errorf("failed to create target directory: %w", err)
 	}
 
 	for _, entry := range entries {
@@ -374,19 +374,18 @@ func extractGameIcons() error {
 			continue
 		}
 
-		data, err := embeddedIcons.ReadFile(path.Join("Game Icons", entry.Name()))
+		embedPath := path.Join(embeddedIconsPath, entry.Name())
+		data, err := embeddedIcons.ReadFile(embedPath)
 		if err != nil {
-			log.Error("Failed to read embedded icon", "file", entry.Name(), "error", err)
-			return err
+			return fmt.Errorf("failed to read embedded file %q: %w", embedPath, err)
 		}
 
 		targetPath := filepath.Join(targetDir, entry.Name())
 		if err := os.WriteFile(targetPath, data, 0644); err != nil {
-			log.Error("Failed to write icon cache", "path", targetPath, "error", err)
-			return err
+			return fmt.Errorf("failed to write icon file %q: %w", targetPath, err)
 		}
 	}
 
-	log.Debug("Icon cache updated")
+	log.Debug("Icons extracted successfully", "path", targetDir)
 	return nil
 }
