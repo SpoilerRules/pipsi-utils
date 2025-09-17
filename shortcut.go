@@ -3,15 +3,16 @@ package main
 import (
 	"embed"
 	"fmt"
+	"os"
+	"path"
+	"path/filepath"
+	"regexp"
+
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/charmbracelet/log"
 	"github.com/go-ole/go-ole"
 	"github.com/go-ole/go-ole/oleutil"
-	"os"
-	"path"
-	"path/filepath"
-	"regexp"
 )
 
 //go:embed "assets/icons/*.ico"
@@ -254,7 +255,7 @@ func createPipsiShortcuts(selectedInstallations []string, location shortcutLocat
 		installationFolder := config.getInstallationFolder(game)
 		pipsiLauncherPath := filepath.Join(exeDir, "Pipsi Installations", installationFolder, "Launcher.exe")
 		iconPath := filepath.Join(os.TempDir(), tempIconsDirName, installationFolder+".ico")
-		workingDir := filepath.Join(exeDir, installationFolder)
+		workingDir := filepath.Join(exeDir, "Pipsi Installations", installationFolder)
 
 		if err := createShortcut(installationFolder, pipsiLauncherPath, iconPath, workingDir, location); err != nil {
 			log.Errorf("Failed to create shortcut for %s: %v", game, err)
