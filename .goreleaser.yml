@@ -54,8 +54,10 @@ signs:
     certificate: "${artifact}.pem"
     output: true
     artifacts: checksum
+    stdin: '{{ .Env.COSIGN_PASSWORD }}'
     args:
       - sign-blob
+      - "--key=cosign.key"
       - "--output-certificate=${certificate}"
       - "--output-signature=${signature}"
       - "${artifact}"
