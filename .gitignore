@@ -7,3 +7,7 @@ dist/
 # Files
 cheat_catalog.yaml
 installation_data.yaml
+
+# Cosign
+cosign.key
+cosign.pub
